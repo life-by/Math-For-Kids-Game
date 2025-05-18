@@ -118,13 +118,7 @@
                 <button class="operation-button" data-op="/"><span class="op-icon">➗</span> ভাগ</button>
             </div>
 
-            <!-- Native Banner Ad Container -->
-            <div class="ad-container">
-                <!-- NEW Native Banner Div ID -->
-                <div id="container-41a85a56a2c82169f32ce132680e1ae4"></div>
-            </div>
-
-            <!-- Banner Ad Container -->
+            <!-- Banner Ad Container (Remains on Home Screen) -->
             <div class="ad-container">
                 <!-- NEW Banner Ad Script -->
                 <script type="text/javascript">
@@ -156,6 +150,12 @@
             <h3>খেলোয়াড় সংখ্যা নির্বাচন করুন:</h3>
             <button class="level-button" id="one-player-button">১ জন</button>
             <button class="level-button" id="two-player-button">২ জন</button>
+        </div>
+        
+        <!-- Native Banner Ad Container - MOVED HERE and given an ID for its wrapper -->
+        <div class="ad-container" id="native-banner-ad-wrapper-game" style="display: none;">
+            <!-- NEW Native Banner Div ID -->
+            <div id="container-41a85a56a2c82169f32ce132680e1ae4"></div>
         </div>
 
         <div id="level-selection" style="display: none;">
@@ -211,6 +211,9 @@
         const twoPlayerButton = document.getElementById('two-player-button');
         const levelSelectionDiv = document.getElementById('level-selection');
         const gameContentArea = document.getElementById('game-content-area');
+        
+        // Reference to the Native Ad Wrapper on the Game Screen
+        const nativeAdWrapperGame = document.getElementById('native-banner-ad-wrapper-game');
 
         const scoreDisplayHeaderDiv = document.getElementById('score-display-game-header');
         const currentScoreHeaderSpan = document.getElementById('current-score-header');
@@ -337,10 +340,20 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             if(screenToShow) screenToShow.classList.add('active');
 
-            if (screenToShow === gameBoard) {
+            // Default state for game-board specific elements that are not always visible
+            // or need specific states when their parent screen becomes active/inactive
+            playerModeSelectionDiv.style.display = 'none';
+            nativeAdWrapperGame.style.display = 'none'; // Hide native ad by default
+            levelSelectionDiv.style.display = 'none';
+            gameContentArea.style.display = 'none';
+
+            if (screenToShow === homeScreen) {
+                // Home screen is active. Its own ads are managed by its structure.
+            } else if (screenToShow === gameBoard) {
+                // Game board is active, show player mode selection and its associated ad
                 playerModeSelectionDiv.style.display = 'block';
-                levelSelectionDiv.style.display = 'none';
-                gameContentArea.style.display = 'none';
+                nativeAdWrapperGame.style.display = 'flex'; // Show the native ad here
+                // levelSelectionDiv and gameContentArea remain 'none' initially
                 gameBoard.classList.remove('one-player-mode', 'two-player-mode');
             }
         }
@@ -358,34 +371,36 @@
             let opName = '';
             switch (op) { case '+': opName = 'যোগ'; break; case '-': opName = 'বিয়োগ'; break; case '*': opName = 'গুণ'; break; case '/': opName = 'ভাগ'; break; }
             gameTitle.textContent = `${opName}`;
-            showScreen(gameBoard);
-            // Player mode selection UI will be visible now
+            showScreen(gameBoard); // This will now show player-mode selection and the native ad
         }
 
         function selectPlayerMode(mode) {
             playButtonSound();
             isTwoPlayerMode = (mode === 2);
+            
             playerModeSelectionDiv.style.display = 'none';
+            nativeAdWrapperGame.style.display = 'none'; // Hide native ad when player mode is selected
+            
             levelSelectionDiv.style.display = 'flex';
             gameContentArea.style.display = 'flex'; // Show the game content area
 
             score_p1 = 0; 
-            updateScoreP1(0); // This will update P1 score and home screen score
+            updateScoreP1(0); 
 
             if (isTwoPlayerMode) {
                 gameBoard.classList.remove('one-player-mode');
                 gameBoard.classList.add('two-player-mode');
-                player2GameZone.style.display = 'flex'; // Ensure P2 zone is visible
+                player2GameZone.style.display = 'flex'; 
                 score_p2 = 0;
                 updateScoreP2(0);
             } else {
                 gameBoard.classList.remove('two-player-mode');
                 gameBoard.classList.add('one-player-mode');
-                player2GameZone.style.display = 'none'; // Hide P2 zone
+                player2GameZone.style.display = 'none'; 
             }
-            // Set default active level and generate problem
+            
             levelButtons.forEach(btn => btn.classList.remove('active'));
-            levelButtons[0].classList.add('active'); // Default to 'সহজ'
+            levelButtons[0].classList.add('active'); 
             currentLevel = 1;
             
             if (isTwoPlayerMode) {
@@ -413,7 +428,7 @@
             if (!selectedOperation) return;
 
             let num1Elem, num2Elem, opElem, eqElem, qmElem, optionsCont, feedbackElem;
-            let currentN1Ref, currentN2Ref, correctAnsRef; // To store references to player-specific state vars
+            let currentN1Ref, currentN2Ref, correctAnsRef; 
 
             if (playerNum === 1) {
                 num1Elem = num1Element_p1; num2Elem = num2Element_p1; opElem = operatorElement_p1;
@@ -428,7 +443,7 @@
             feedbackElem.textContent = ''; feedbackElem.className = 'feedback-box';
             optionsCont.innerHTML = '';
             enableOptionButtons(optionsCont);
-            if (playerNum === 1 && faceTimeoutId) { // Only clear global face for P1's problem gen
+            if (playerNum === 1 && faceTimeoutId) { 
                 clearTimeout(faceTimeoutId); 
                 feedbackFaceContainer.classList.remove('show'); 
                 faceTimeoutId = null;
@@ -447,15 +462,14 @@
                 case '-':
                     let maxResult = levelConfig[1];
                     num1 = getRandomInt(Math.ceil(maxResult / (currentLevel === 1 ? 2 : currentLevel)), maxResult);
-                    num2 = getRandomInt(levelConfig[0], num1); // Ensure positive or zero result
-                    if (num2 > num1 && Math.random() < 0.3 && levelConfig[0] < num1) { // Allow swapping for variety sometimes if min > 0
-                         // Only swap if num2 can be made smaller than num1 and result is still in range
+                    num2 = getRandomInt(levelConfig[0], num1); 
+                    if (num2 > num1 && Math.random() < 0.3 && levelConfig[0] < num1) { 
                          let tempMin = levelConfig[0];
-                         let tempMax = num1 - tempMin; // max possible num2
-                         if (tempMax >= tempMin) { // if range is valid
+                         let tempMax = num1 - tempMin; 
+                         if (tempMax >= tempMin) { 
                             num2 = getRandomInt(tempMin, tempMax);
-                         } // else keep original num2
-                    } else if (num2 > num1) { // default ensure num1 is bigger for subtraction
+                         } 
+                    } else if (num2 > num1) { 
                         [num1, num2] = [num2, num1];
                     }
                     answer = num1 - num2;
@@ -464,7 +478,7 @@
                 case '*':
                     let maxFactor1 = levelConfig[1];
                     let maxFactor2 = levelConfig[1];
-                    if (currentLevel === 3) maxFactor2 = Math.min(12, maxFactor1 + 2); // For "hard" level, one factor can be slightly larger
+                    if (currentLevel === 3) maxFactor2 = Math.min(12, maxFactor1 + 2); 
                     num1 = getRandomInt(levelConfig[0], maxFactor1);
                     num2 = getRandomInt(levelConfig[0], maxFactor2);
                     answer = num1 * num2;
@@ -473,28 +487,28 @@
                 case '/':
                     let maxDivisor = levelConfig[1];
                     let maxResultFactor = levelConfig[1];
-                    num2 = getRandomInt(currentLevel > 1 ? 2 : 1, maxDivisor); // Divisor
+                    num2 = getRandomInt(currentLevel > 1 ? 2 : 1, maxDivisor); 
                     if (num2 === 0) num2 = 1; 
-                    answer = getRandomInt(1, maxResultFactor); // Result
-                    num1 = answer * num2; // Dividend
+                    answer = getRandomInt(1, maxResultFactor); 
+                    num1 = answer * num2; 
                     opElem.textContent = '÷';
                     break;
             }
 
             num1Elem.textContent = num1;
             num2Elem.textContent = num2;
-            eqElem.textContent = '='; // Set equals sign
+            eqElem.textContent = '='; 
             qmElem.textContent = '?';
 
             if (playerNum === 1) { currentNum1_p1 = num1; currentNum2_p1 = num2; correctAnswer_p1 = answer; }
             else { currentNum1_p2 = num1; currentNum2_p2 = num2; correctAnswer_p2 = answer; }
 
             const options = [answer];
-            const range = Math.max(5, Math.ceil(answer * (0.15 + currentLevel * 0.08))); // Increased range for better distractors
+            const range = Math.max(5, Math.ceil(answer * (0.15 + currentLevel * 0.08))); 
             let attempts = 0;
-            while (options.length < 4 && attempts < 50) { // Safety break with attempts
-                let wrongOption = getRandomInt(Math.max(0, answer - range), answer + range + (selectedOperation === '/' ? 5 : 0) ); // Slightly larger range for division
-                if (selectedOperation === '/' && wrongOption === 0 && answer !== 0) { // Avoid 0 as option for division unless answer is 0
+            while (options.length < 4 && attempts < 50) { 
+                let wrongOption = getRandomInt(Math.max(0, answer - range), answer + range + (selectedOperation === '/' ? 5 : 0) ); 
+                if (selectedOperation === '/' && wrongOption === 0 && answer !== 0) { 
                     attempts++;
                     continue;
                 }
@@ -503,7 +517,6 @@
                 }
                 attempts++;
             }
-             // Fill with more distinct values if still not 4 options
             attempts = 0;
             while(options.length < 4 && attempts < 20) {
                 let fillValue = getRandomInt(Math.max(0, answer - 10), answer + 10);
@@ -513,13 +526,13 @@
                 }
                 attempts++;
             }
-            // Ensure uniqueness by converting to Set and back, then slice
+            
             let uniqueOptions = Array.from(new Set(options));
-            while(uniqueOptions.length < 4){ // if still not enough, add simple increments/decrements
+            while(uniqueOptions.length < 4){ 
                 if(!uniqueOptions.includes(answer + uniqueOptions.length)) uniqueOptions.push(answer + uniqueOptions.length);
                 else if (!uniqueOptions.includes(Math.max(0, answer - uniqueOptions.length))) uniqueOptions.push(Math.max(0, answer - uniqueOptions.length));
-                else uniqueOptions.push(getRandomInt(0,20)); // last resort
-                uniqueOptions = Array.from(new Set(uniqueOptions)); // re-uniquify
+                else uniqueOptions.push(getRandomInt(0,20)); 
+                uniqueOptions = Array.from(new Set(uniqueOptions)); 
             }
 
             shuffleArray(uniqueOptions);
@@ -572,7 +585,6 @@
 
         // --- Event Listeners ---
         function addInteractionListener(element) {
-            // Add once for click and touchstart
             element.addEventListener('click', handleFirstInteraction, { once: true });
             element.addEventListener('touchstart', handleFirstInteraction, { once: true });
         }
@@ -594,13 +606,12 @@
         backButton.addEventListener('click', showHomeScreen);
         addInteractionListener(backButton);
         bgSoundToggleButton.addEventListener('click', toggleBackgroundSound);
-        // Body keydown listener for first interaction is separate
         document.body.addEventListener('keydown', handleFirstInteraction, { once: true });
 
 
         // --- Initial Setup ---
         updateTotalScoreForHomeScreen(0); 
-        showScreen(homeScreen);
+        showScreen(homeScreen); // This will ensure nativeAdWrapperGame is initially hidden.
         bgSoundToggleButton.textContent = '🔇';
         bgSoundToggleButton.title = "ব্যাকগ্রাউন্ড সাউন্ড চালু করুন";
 
@@ -609,7 +620,7 @@
     <!-- NEW Social Bar Ad Script -->
     <script type='text/javascript' src='//pl26197619.profitableratecpm.com/69/56/b6/6956b661e1c6014b65223d279bf593af.js'></script>
     
-    <!-- NEW Native Banner Ad Script (its container div is in #home-screen) -->
+    <!-- NEW Native Banner Ad Script (its container div is now in #game-board but script stays here) -->
     <script async="async" data-cfasync="false" src="//pl26673032.profitableratecpm.com/41a85a56a2c82169f32ce132680e1ae4/invoke.js"></script>
 
 </body>
