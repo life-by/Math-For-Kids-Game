@@ -120,7 +120,6 @@
 
             <!-- Banner Ad Container (Remains on Home Screen) -->
             <div class="ad-container">
-                <!-- NEW Banner Ad Script -->
                 <script type="text/javascript">
                     atOptions = {
                         'key' : '6d27287e4227540933eadd31abe0f678',
@@ -152,9 +151,8 @@
             <button class="level-button" id="two-player-button">২ জন</button>
         </div>
         
-        <!-- Native Banner Ad Container - MOVED HERE and given an ID for its wrapper -->
+        <!-- Native Banner Ad Container - Visible only during player mode selection -->
         <div class="ad-container" id="native-banner-ad-wrapper-game" style="display: none;">
-            <!-- NEW Native Banner Div ID -->
             <div id="container-41a85a56a2c82169f32ce132680e1ae4"></div>
         </div>
 
@@ -165,7 +163,7 @@
         </div>
 
         <div id="game-content-area" style="display: none;">
-            <!-- Player 2 Area (Top, Rotated for 2P mode, hidden in 1P) -->
+            <!-- Player 2 Area -->
             <div id="player2-game-zone" class="player-zone">
                 <div class="player-internal-score" id="player2-internal-score-display">খেলোয়াড় ২: <span id="player2-score">0</span></div>
                 <div class="problem-box">
@@ -175,7 +173,7 @@
                 <div id="feedback-p2" class="feedback-box"></div>
             </div>
 
-            <!-- Player 1 Area (Bottom, Normal for 1P and 2P mode) -->
+            <!-- Player 1 Area -->
             <div id="player1-game-zone" class="player-zone">
                 <div class="player-internal-score" id="player1-internal-score-display">খেলোয়াড় ১: <span id="player1-score">0</span></div>
                 <div class="problem-box">
@@ -212,7 +210,6 @@
         const levelSelectionDiv = document.getElementById('level-selection');
         const gameContentArea = document.getElementById('game-content-area');
         
-        // Reference to the Native Ad Wrapper on the Game Screen
         const nativeAdWrapperGame = document.getElementById('native-banner-ad-wrapper-game');
 
         const scoreDisplayHeaderDiv = document.getElementById('score-display-game-header');
@@ -340,20 +337,16 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             if(screenToShow) screenToShow.classList.add('active');
 
-            // Default state for game-board specific elements that are not always visible
-            // or need specific states when their parent screen becomes active/inactive
             playerModeSelectionDiv.style.display = 'none';
-            nativeAdWrapperGame.style.display = 'none'; // Hide native ad by default
+            nativeAdWrapperGame.style.display = 'none'; 
             levelSelectionDiv.style.display = 'none';
             gameContentArea.style.display = 'none';
 
             if (screenToShow === homeScreen) {
-                // Home screen is active. Its own ads are managed by its structure.
+                // Home screen is active.
             } else if (screenToShow === gameBoard) {
-                // Game board is active, show player mode selection and its associated ad
                 playerModeSelectionDiv.style.display = 'block';
-                nativeAdWrapperGame.style.display = 'flex'; // Show the native ad here
-                // levelSelectionDiv and gameContentArea remain 'none' initially
+                nativeAdWrapperGame.style.display = 'flex'; 
                 gameBoard.classList.remove('one-player-mode', 'two-player-mode');
             }
         }
@@ -371,7 +364,7 @@
             let opName = '';
             switch (op) { case '+': opName = 'যোগ'; break; case '-': opName = 'বিয়োগ'; break; case '*': opName = 'গুণ'; break; case '/': opName = 'ভাগ'; break; }
             gameTitle.textContent = `${opName}`;
-            showScreen(gameBoard); // This will now show player-mode selection and the native ad
+            showScreen(gameBoard); 
         }
 
         function selectPlayerMode(mode) {
@@ -379,10 +372,10 @@
             isTwoPlayerMode = (mode === 2);
             
             playerModeSelectionDiv.style.display = 'none';
-            nativeAdWrapperGame.style.display = 'none'; // Hide native ad when player mode is selected
+            nativeAdWrapperGame.style.display = 'none'; 
             
             levelSelectionDiv.style.display = 'flex';
-            gameContentArea.style.display = 'flex'; // Show the game content area
+            gameContentArea.style.display = 'flex'; 
 
             score_p1 = 0; 
             updateScoreP1(0); 
@@ -428,8 +421,7 @@
             if (!selectedOperation) return;
 
             let num1Elem, num2Elem, opElem, eqElem, qmElem, optionsCont, feedbackElem;
-            let currentN1Ref, currentN2Ref, correctAnsRef; 
-
+            
             if (playerNum === 1) {
                 num1Elem = num1Element_p1; num2Elem = num2Element_p1; opElem = operatorElement_p1;
                 eqElem = equalsSignElement_p1; qmElem = questionMarkElement_p1;
@@ -538,7 +530,6 @@
             shuffleArray(uniqueOptions);
             const finalOptions = uniqueOptions.slice(0, 4);
 
-
             finalOptions.forEach(option => {
                 const button = document.createElement('button');
                 button.classList.add('option-button');
@@ -611,17 +602,20 @@
 
         // --- Initial Setup ---
         updateTotalScoreForHomeScreen(0); 
-        showScreen(homeScreen); // This will ensure nativeAdWrapperGame is initially hidden.
+        showScreen(homeScreen); 
         bgSoundToggleButton.textContent = '🔇';
         bgSoundToggleButton.title = "ব্যাকগ্রাউন্ড সাউন্ড চালু করুন";
 
     </script>
 
-    <!-- NEW Social Bar Ad Script -->
+    <!-- Social Bar Ad Script -->
     <script type='text/javascript' src='//pl26197619.profitableratecpm.com/69/56/b6/6956b661e1c6014b65223d279bf593af.js'></script>
     
-    <!-- NEW Native Banner Ad Script (its container div is now in #game-board but script stays here) -->
+    <!-- Native Banner Ad Script (its container div is in #game-board) -->
     <script async="async" data-cfasync="false" src="//pl26673032.profitableratecpm.com/41a85a56a2c82169f32ce132680e1ae4/invoke.js"></script>
+
+    <!-- NEW Popunder Ad Script -->
+    <script type='text/javascript' src='//pl23902783.profitableratecpm.com/e2/26/e1/e226e143fcb56fe249847c2d6c483289.js'></script>
 
 </body>
 </html>
